@@ -2,7 +2,7 @@
 
 OSHunter es un script en Bash diseñado para escanear vulnerabilidades en dispositivos dentro de una red local. Es una herramienta educativa ideal para aquellos que se inician en el hacking ético y desean comprender cómo identificar y analizar posibles vulnerabilidades en sistemas.
 
-## Características
+## 🚀Características🚀
 
 - **Detección de dispositivos en la red:** Utiliza `netdiscover` para identificar dispositivos activos.
 - **Escaneo de puertos abiertos:** Emplea `nmap` para detectar puertos abiertos y servicios asociados.
@@ -11,7 +11,7 @@ OSHunter es un script en Bash diseñado para escanear vulnerabilidades en dispos
 - **Enumeración de directorios web:** Ofrece la opción de usar `Gobuster` para descubrir directorios y archivos ocultos en servidores web.
 - **Resultados organizados:** Guarda los resultados en directorios específicos para cada dispositivo analizado, facilitando su revisión.
 
-## Requisitos de Instalación
+## 📋 Requisitos de Instalación
 
 Antes de ejecutar OSHunter, asegúrate de tener instaladas las siguientes herramientas en tu sistema:
 
@@ -26,3 +26,20 @@ Antes de ejecutar OSHunter, asegúrate de tener instaladas las siguientes herram
 ```bash
 sudo apt update
 sudo apt install nmap netdiscover nikto gobuster responder
+```
+⚠️ Nota Legal
+
+Este script está destinado únicamente a fines educativos y debe utilizarse en entornos donde tengas autorización explícita para realizar pruebas de seguridad. El uso no autorizado de OSHunter puede ser ilegal y está en contra de las prácticas de hacking ético. Los autores no se responsabilizan por el uso indebido de esta herramienta.
+
+🛡️ Próximamente
+
+Compatibilidad total con macOS.
+Automatización adicional para la instalación de herramientas en diferentes sistemas operativos.
+Mejoras en la detección de vulnerabilidades y servicios.
+
+📚 Contribuciones
+
+¡Las contribuciones son bienvenidas! Si deseas colaborar, por favor, realiza un fork del repositorio, crea una nueva rama con tus mejoras y envía un pull request para su revisión.
+
+
+
