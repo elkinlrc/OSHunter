@@ -7,23 +7,110 @@ CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # Sin color
 
-# Validar que se proporcione una IP o hacer un escaneo con netdiscover
-if [ -z "$1" ]; then
-  echo -e "${CYAN}[+] No se proporcionó IP. Detectando dispositivos en la red usando la tarjeta eth0...${NC}"
+detect_active_interface() {
+  echo -e "${CYAN}[+] Detectando interfaces activas...${NC}"
 
-  # Detectar rango de red basado en eth0
-  NETWORK_RANGE=$(ip -o -f inet addr show eth0 | awk '/scope global/ {print $4}')
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Detectar interfaces activas en Linux
+    interfaces=$(ip -o -f inet addr show | awk '{print $2, $4}')
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Detectar interfaces activas en macOS
+interfaces=$(ifconfig | awk '
+/^[a-z]/ { iface=$1; sub(":", "", iface) }
+/inet / && $2 != "127.0.0.1" { print iface, $2 }
+')
 
-  if [ -z "$NETWORK_RANGE" ]; then
-    echo -e "${RED}[-] No se pudo detectar el rango de red en eth0. Asegúrate de que la interfaz está activa.${NC}"
+
+
+
+  elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32" ]]; then
+    # Detectar interfaces activas en Windows
+    interfaces=$(ipconfig | findstr "IPv4" | awk '{print $NF}')
+  else
+    echo -e "${RED}[-] Sistema operativo no compatible.${NC}"
     exit 1
   fi
 
-  echo -e "${CYAN}[+] Rango de red detectado: ${YELLOW}$NETWORK_RANGE${NC}"
-  echo -e "${CYAN}[+] Ejecutando netdiscover en ${YELLOW}$NETWORK_RANGE${NC}..."
+  # Mostrar todas las interfaces activas detectadas
+  if [ -z "$interfaces" ]; then
+    echo -e "${RED}[-] No se encontraron interfaces activas.${NC}"
+    exit 1
+  else
+    echo -e "${GREEN}[+] Interfaces activas detectadas:${NC}"
+    echo "$interfaces"
+  fi
 
+  # Seleccionar automáticamente si hay una sola interfaz
+  num_interfaces=$(echo "$interfaces" | wc -l)
+  if [ "$num_interfaces" -eq 1 ]; then
+    selected_interface=$(echo "$interfaces" | awk '{print $1}')
+    echo -e "${CYAN}[+] Se seleccionó automáticamente la interfaz: $selected_interface${NC}"
+  else
+    echo -e "${YELLOW}[!] Hay varias interfaces activas. Por favor selecciona una:${NC}"
+    select selected_interface in $(echo "$interfaces" | awk '{print $1}'); do
+      if [ -n "$selected_interface" ]; then
+        echo -e "${GREEN}[+] Has seleccionado: $selected_interface${NC}"
+        break
+      else
+        echo -e "${RED}[-] Selección no válida.${NC}"
+      fi
+    done
+  fi
+
+  echo -e "${CYAN}[+] Usando la interfaz: $selected_interface${NC}"
+}
+
+
+# Detectar interfaces activas
+detect_active_interface
+
+# Detectar rango de red (Linux y macOS)
+if [[ "$OSTYPE" == "linux-gnu"*  ]]; then
+  network_range=$(ip -o -f inet addr show "$selected_interface" | awk '{print $4}')
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Obtener el rango de red en macOS
+  network_range=$(ifconfig "$selected_interface" | awk '/inet / {print $2, $NF}' | awk '
+  {
+    split($1, ip, ".")
+    split($2, mask, ".")
+    for (i = 1; i <= 4; i++) {
+      network[i] = ip[i] + 0 & mask[i] + 0
+    }
+    print network[1]"."network[2]"."network[3]"."network[4]"/24"
+    exit
+  }')
+
+
+elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32" ]]; then
+  network_range=$(ipconfig | findstr "$selected_interface" | findstr "IPv4" | awk '{print $NF}')
+fi
+
+if [ -z "$network_range" ]; then
+  echo -e "${RED}[-] No se pudo detectar el rango de red.${NC}"
+  exit 1
+fi
+
+
+
+# Validar que se proporcione una IP o hacer un escaneo con netdiscover
+#if [ -z "$1" ]; then
+#  echo -e "${CYAN}[+] No se proporcionó IP. Detectando dispositivos en la red usando la tarjeta eth0...${NC}"
+
+  # Detectar rango de red basado en eth0
+#  NETWORK_RANGE=$(ip -o -f inet addr show eth0 | awk '/scope global/ {print $4}')
+
+#  if [ -z "$NETWORK_RANGE" ]; then
+#    echo -e "${RED}[-] No se pudo detectar el rango de red en eth0. Asegúrate de que la interfaz está activa.${NC}"
+#    exit 1
+#  fi
+
+#  echo -e "${CYAN}[+] Rango de red detectado: ${YELLOW}$NETWORK_RANGE${NC}"
+#  echo -e "${CYAN}[+] Ejecutando netdiscover en ${YELLOW}$NETWORK_RANGE${NC}..."
+echo -e "${CYAN}[+] Rango de red detectado: ${YELLOW}$network_range${NC}"
   # Ejecutar netdiscover y guardar resultados
-  netdiscover -r "$NETWORK_RANGE" -P | grep "1 " | awk '{print $1}' > discovered_hosts.txt
+ ## netdiscover -r "$NETWORK_RANGE" -P | grep "1 " | awk '{print $1}' > discovered_hosts.txt
+ echo -e "${CYAN}[+] Escaneando dispositivos en la red...${NC}"
+ sudo nmap -sn "$NETWORK_RANGE" -oG - | awk '/Up$/{print $2}' > discovered_hosts.txt
   echo -e "${CYAN}[+] Dispositivos encontrados:${NC}"
   cat discovered_hosts.txt
 

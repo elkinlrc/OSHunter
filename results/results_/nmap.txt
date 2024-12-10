@@ -1,0 +1,4 @@
+# Nmap 7.95 scan initiated Tue Dec 10 11:49:26 2024 as: nmap -sS -p- --open -oN /Users/leo/Proyects/OSHunter/results/results_/nmap.txt
+WARNING: No targets were specified, so 0 hosts scanned.
+# Nmap done at Tue Dec 10 11:49:26 2024 -- 0 IP addresses (0 hosts up) scanned in 0.02 seconds
+[+] Resultados guardados en: /Users/leo/Proyects/OSHunter/results/results_/nmap.txt
