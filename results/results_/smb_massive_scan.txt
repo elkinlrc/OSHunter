@@ -1,6 +1,0 @@
-# Nmap 7.95 scan initiated Tue Dec 10 11:48:21 2024 as: nmap --script smb-enum* -p 139,445 -oN /Users/leo/Proyects/OSHunter/results/results_/smb_massive_scan.txt
-WARNING: No targets were specified, so 0 hosts scanned.
-# Nmap done at Tue Dec 10 11:48:21 2024 -- 0 IP addresses (0 hosts up) scanned in 0.10 seconds
-# Nmap 7.95 scan initiated Tue Dec 10 11:48:21 2024 as: nmap --script smb-enum* -p 139,445 -oN /Users/leo/Proyects/OSHunter/results/results_/smb_massive_scan.txt
-WARNING: No targets were specified, so 0 hosts scanned.
-# Nmap done at Tue Dec 10 11:48:21 2024 -- 0 IP addresses (0 hosts up) scanned in 0.10 seconds
